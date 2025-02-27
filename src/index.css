@@ -83,3 +83,44 @@
 .animation-delay-400 {
   animation-delay: 0.4s;
 }
+
+/* Markdown styling overrides */
+.prose a {
+  @apply text-primary underline font-medium;
+}
+
+.prose h2 {
+  @apply text-lg font-semibold mt-4 mb-2;
+}
+
+.prose h3 {
+  @apply text-base font-semibold mt-3 mb-1;
+}
+
+.prose p {
+  @apply mb-3;
+}
+
+.prose ul {
+  @apply pl-6 list-disc mb-3;
+}
+
+.prose ol {
+  @apply pl-6 list-decimal mb-3;
+}
+
+.prose code {
+  @apply bg-muted px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.prose pre {
+  @apply bg-muted p-3 rounded-md overflow-x-auto text-sm my-3;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-muted pl-4 italic;
+}
+
+.prose strong, .prose b {
+  @apply font-semibold;
+}
