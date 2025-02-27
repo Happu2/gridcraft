@@ -1,60 +1,52 @@
-# Welcome to your Lovable project
 
+# CDP Support Agent Chatbot
 
+A responsive web application that provides a conversational interface for answering "how-to" questions related to Customer Data Platforms (CDPs).
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- Chat interface for asking questions about CDPs
+- Support for four major CDP platforms:
+  - Segment
+  - mParticle
+  - Lytics
+  - Zeotap
+- Ability to handle "how-to" questions for each platform
+- Cross-CDP comparisons
+- Sample questions for inspiration
+- Mobile-responsive design
 
+## How it Works
 
+This application simulates a chatbot that can answer questions about different Customer Data Platforms. It's built using:
 
-**Use your preferred IDE**
+- React and TypeScript
+- Tailwind CSS for styling
+- Shadcn UI for component library
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+In a production environment, this would typically connect to an OpenAI or similar AI service API to generate responses based on CDP documentation.
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Getting Started
 
-Follow these steps:
+To run this project locally:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Install dependencies
+npm install
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Project Structure
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `src/pages/Index.tsx` - Main chatbot interface
+- `src/components/ui/` - UI components from Shadcn UI
 
-**Use GitHub Codespaces**
+## Enhancement Ideas
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+- Connect to OpenAI API to generate dynamic responses
+- Add document scraping to extract information from CDP documentation
+- Implement a feedback system for incorrect answers
+- Add authentication for user-specific chat history
+- Enable offline mode with cached responses
