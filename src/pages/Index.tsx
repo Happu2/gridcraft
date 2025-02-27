@@ -46,10 +46,10 @@ const Index = () => {
                   <li><code>=MIN(D1:D20)</code> - Find the minimum value in a range</li>
                   <li><code>=COUNT(E1:E20)</code> - Count numeric values in a range</li>
                   <li><code>=ROUND(A1, 2)</code> - Round a number to specified decimals</li>
-                  <li><code>=IF(A1>10, "High", "Low")</code> - Conditional logic</li>
+                  <li><code>=IF(A1{'>'}10, "High", "Low")</code> - Conditional logic</li>
                   <li><code>=CONCATENATE(A1, " ", B1)</code> - Join text values</li>
                   <li><code>=COUNTIF(A1:A10, "Text")</code> - Count cells matching criteria</li>
-                  <li><code>=SUMIF(A1:A10, ">5")</code> - Sum cells matching criteria</li>
+                  <li><code>=SUMIF(A1:A10, "{'>'}5")</code> - Sum cells matching criteria</li>
                 </ul>
                 
                 <h3 className="font-semibold">Data Quality Functions</h3>
