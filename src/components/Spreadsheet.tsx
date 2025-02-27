@@ -1,8 +1,12 @@
+
 import React, { useEffect, useReducer, useRef, useState } from 'react';
 import Cell from './Cell';
 import FormulaBar from './FormulaBar';
 import Toolbar from './Toolbar';
-import { ActionType, CellData, CellPosition, CellRange, CellStyle, Selection, SheetData } from '@/lib/dataTypes';
+import Chart from './Chart';
+import ChartDialog from './ChartDialog';
+import SaveLoadDialog from './SaveLoadDialog';
+import { ActionType, CellData, CellPosition, CellRange, CellStyle, ChartData, Selection, SheetData } from '@/lib/dataTypes';
 import { 
   createEmptyCell, 
   getCellReference, 
@@ -13,11 +17,18 @@ import {
 import { determineCellType, evaluateFormula } from '@/lib/formulaUtils';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { ChartBar, Plus, Save } from 'lucide-react';
+import { Button } from './ui/button';
 
 const INITIAL_ROWS = 50;
 const INITIAL_COLS = 26; // A-Z
 
-const initialSheet = initializeSheet(INITIAL_ROWS, INITIAL_COLS);
+const initialSheet = (): SheetData => {
+  const sheet = initializeSheet(INITIAL_ROWS, INITIAL_COLS);
+  sheet.name = 'Untitled';
+  sheet.charts = [];
+  return sheet;
+};
 
 const initialSelection: Selection = {
   current: null,
@@ -179,12 +190,56 @@ const reducer = (state: SheetData, action: ActionType): SheetData => {
     
     case 'FORMAT_CELLS': {
       const { style } = action;
-      return state; // Placeholder - will be implemented with selection
+      
+      // This would apply the style to selected cells
+      // Implementation depends on selection state
+      return state;
     }
     
     case 'FIND_REPLACE': {
       const { find, replace, range } = action;
-      return state; // Placeholder - will be implemented with selection
+      
+      // This would find and replace text in selected cells
+      // Implementation depends on selection state
+      return state;
+    }
+    
+    case 'ADD_CHART': {
+      const { chart } = action;
+      
+      return {
+        ...state,
+        charts: [...(state.charts || []), chart],
+      };
+    }
+    
+    case 'UPDATE_CHART': {
+      const { id, data } = action;
+      
+      return {
+        ...state,
+        charts: (state.charts || []).map(chart => 
+          chart.id === id ? { ...chart, ...data } : chart
+        ),
+      };
+    }
+    
+    case 'DELETE_CHART': {
+      const { id } = action;
+      
+      return {
+        ...state,
+        charts: (state.charts || []).filter(chart => chart.id !== id),
+      };
+    }
+    
+    case 'SET_SHEET_NAME': {
+      const { name } = action;
+      
+      return {
+        ...state,
+        name,
+      };
     }
     
     default:
@@ -193,11 +248,14 @@ const reducer = (state: SheetData, action: ActionType): SheetData => {
 };
 
 const Spreadsheet: React.FC = () => {
-  const [sheetData, dispatch] = useReducer(reducer, initialSheet);
+  const [sheetData, dispatch] = useReducer(reducer, null, initialSheet);
   const [selection, setSelection] = useState<Selection>(initialSelection);
   const [activeCellPosition, setActiveCellPosition] = useState<CellPosition | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startDragPosition, setStartDragPosition] = useState<CellPosition | null>(null);
+  const [showChartDialog, setShowChartDialog] = useState(false);
+  const [showSaveLoadDialog, setShowSaveLoadDialog] = useState(false);
+  const [editingChart, setEditingChart] = useState<ChartData | undefined>(undefined);
   const gridRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -407,6 +465,85 @@ const Spreadsheet: React.FC = () => {
     });
   };
 
+  // Chart management
+  const handleAddChart = () => {
+    setEditingChart(undefined);
+    setShowChartDialog(true);
+  };
+
+  const handleEditChart = (chart: ChartData) => {
+    setEditingChart(chart);
+    setShowChartDialog(true);
+  };
+
+  const handleSaveChart = (chartData: ChartData) => {
+    if (editingChart) {
+      dispatch({ type: 'UPDATE_CHART', id: chartData.id, data: chartData });
+      toast({
+        title: "Chart Updated",
+        description: `"${chartData.title}" has been updated.`,
+      });
+    } else {
+      dispatch({ type: 'ADD_CHART', chart: chartData });
+      toast({
+        title: "Chart Added",
+        description: `"${chartData.title}" has been added.`,
+      });
+    }
+  };
+
+  const handleDeleteChart = (chartId: string) => {
+    dispatch({ type: 'DELETE_CHART', id: chartId });
+    toast({
+      title: "Chart Deleted",
+      description: "The chart has been removed.",
+    });
+  };
+
+  // Save and load
+  const handleSaveLoad = () => {
+    setShowSaveLoadDialog(true);
+  };
+
+  const handleLoadSheet = (data: SheetData) => {
+    // Replace the current state with the loaded state
+    Object.entries(data.cells).forEach(([row, cols]) => {
+      Object.entries(cols).forEach(([col, cellData]) => {
+        const rowIndex = parseInt(row, 10);
+        const colIndex = col.charCodeAt(0) - 65; // A = 0, B = 1, etc.
+        
+        // Update the cell
+        dispatch({
+          type: 'UPDATE_CELL',
+          row: rowIndex,
+          col: colIndex,
+          data: cellData,
+        });
+      });
+    });
+    
+    // Set the sheet name
+    dispatch({ type: 'SET_SHEET_NAME', name: data.name || 'Untitled' });
+    
+    // Load charts if any
+    if (data.charts && data.charts.length > 0) {
+      // Clear existing charts first
+      const currentCharts = sheetData.charts || [];
+      currentCharts.forEach(chart => {
+        dispatch({ type: 'DELETE_CHART', id: chart.id });
+      });
+      
+      // Add the new charts
+      data.charts.forEach(chart => {
+        dispatch({ type: 'ADD_CHART', chart });
+      });
+    }
+  };
+
+  const handleSetSheetName = (name: string) => {
+    dispatch({ type: 'SET_SHEET_NAME', name });
+  };
+
   // Render column headers
   const renderColumnHeaders = () => {
     const headers = [];
@@ -496,13 +633,26 @@ const Spreadsheet: React.FC = () => {
         onFindReplace={handleFindReplace}
       />
       
-      <FormulaBar
-        activeCellPosition={activeCellPosition}
-        activeCellContent={getActiveCellContent()}
-        onFormulaChange={handleFormulaChange}
-      />
+      <div className="bg-toolbar-bg border-b border-cell-border p-1 flex items-center justify-between">
+        <FormulaBar
+          activeCellPosition={activeCellPosition}
+          activeCellContent={getActiveCellContent()}
+          onFormulaChange={handleFormulaChange}
+        />
+        
+        <div className="flex items-center space-x-2">
+          <Button variant="outline" size="sm" onClick={handleAddChart}>
+            <ChartBar size={16} className="mr-1" />
+            Add Chart
+          </Button>
+          <Button variant="outline" size="sm" onClick={handleSaveLoad}>
+            <Save size={16} className="mr-1" />
+            Save/Load
+          </Button>
+        </div>
+      </div>
       
-      <div className="flex-grow overflow-auto">
+      <div className="flex-grow overflow-auto flex flex-col">
         <div className="flex">
           {/* Top-left corner */}
           <div className="cell row-header cell-header">&nbsp;</div>
@@ -513,18 +663,55 @@ const Spreadsheet: React.FC = () => {
           </div>
         </div>
         
-        <div className="flex">
+        <div className="flex flex-grow">
           {/* Row headers */}
           <div className="flex flex-col">
             {renderRowHeaders()}
           </div>
           
           {/* Cells */}
-          <div ref={gridRef} className="flex flex-col">
-            {renderCells()}
+          <div className="flex flex-col flex-grow">
+            <div ref={gridRef} className="flex flex-col">
+              {renderCells()}
+            </div>
+            
+            {/* Charts section */}
+            {sheetData.charts && sheetData.charts.length > 0 && (
+              <div className="p-4 border-t border-cell-border">
+                <h2 className="text-lg font-semibold mb-4">Charts</h2>
+                <div className="grid gap-4 grid-cols-1 md:grid-cols-2">
+                  {sheetData.charts.map((chart) => (
+                    <Chart
+                      key={chart.id}
+                      chartData={chart}
+                      sheetData={sheetData}
+                      onEdit={handleEditChart}
+                      onDelete={handleDeleteChart}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+      
+      {/* Chart Dialog */}
+      <ChartDialog
+        open={showChartDialog}
+        onOpenChange={setShowChartDialog}
+        onSave={handleSaveChart}
+        existingChart={editingChart}
+      />
+      
+      {/* Save/Load Dialog */}
+      <SaveLoadDialog
+        open={showSaveLoadDialog}
+        onOpenChange={setShowSaveLoadDialog}
+        sheetData={sheetData}
+        onLoad={handleLoadSheet}
+        onNameChange={handleSetSheetName}
+      />
     </div>
   );
 };

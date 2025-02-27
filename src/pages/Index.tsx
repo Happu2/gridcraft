@@ -30,7 +30,7 @@ const Index = () => {
                 Help
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[500px]">
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Using GridCraft</DialogTitle>
                 <DialogDescription>
@@ -45,6 +45,11 @@ const Index = () => {
                   <li><code>=MAX(C1:C20)</code> - Find the maximum value in a range</li>
                   <li><code>=MIN(D1:D20)</code> - Find the minimum value in a range</li>
                   <li><code>=COUNT(E1:E20)</code> - Count numeric values in a range</li>
+                  <li><code>=ROUND(A1, 2)</code> - Round a number to specified decimals</li>
+                  <li><code>=IF(A1>10, "High", "Low")</code> - Conditional logic</li>
+                  <li><code>=CONCATENATE(A1, " ", B1)</code> - Join text values</li>
+                  <li><code>=COUNTIF(A1:A10, "Text")</code> - Count cells matching criteria</li>
+                  <li><code>=SUMIF(A1:A10, ">5")</code> - Sum cells matching criteria</li>
                 </ul>
                 
                 <h3 className="font-semibold">Data Quality Functions</h3>
@@ -52,6 +57,29 @@ const Index = () => {
                   <li><code>=TRIM(A1)</code> - Remove leading and trailing whitespace</li>
                   <li><code>=UPPER(B1)</code> - Convert text to uppercase</li>
                   <li><code>=LOWER(C1)</code> - Convert text to lowercase</li>
+                </ul>
+                
+                <h3 className="font-semibold">Data Visualization</h3>
+                <p>
+                  Click the "Add Chart" button to create visualizations from your data.
+                  Supported chart types:
+                </p>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Bar Charts</li>
+                  <li>Line Charts</li>
+                  <li>Pie Charts</li>
+                  <li>Area Charts</li>
+                  <li>Scatter Plots</li>
+                </ul>
+                
+                <h3 className="font-semibold">Saving and Loading</h3>
+                <p>
+                  Click the "Save/Load" button to:
+                </p>
+                <ul className="list-disc pl-5 space-y-2">
+                  <li>Save your spreadsheet as JSON</li>
+                  <li>Export data as CSV</li>
+                  <li>Load previously saved spreadsheets</li>
                 </ul>
                 
                 <h3 className="font-semibold">Tips</h3>
